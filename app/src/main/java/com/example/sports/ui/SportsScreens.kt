@@ -16,6 +16,7 @@
 
 package com.example.sports.ui
 
+import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,6 +31,7 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -56,6 +58,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -98,11 +101,7 @@ fun SportsApp(
                 contentPadding = innerPadding,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(
-                        top = dimensionResource(R.dimen.padding_medium),
-                        start = dimensionResource(R.dimen.padding_medium),
-                        end = dimensionResource(R.dimen.padding_medium),
-                    )
+                    .padding(dimensionResource(R.dimen.padding_medium))
             )
         } else {
             SportsDetail(
@@ -113,6 +112,38 @@ fun SportsApp(
                 }
             )
         }
+    }
+}
+
+@Composable
+fun SportsListAndDetails(
+    sportsUiState: SportsUiState,
+    onSportSelected: (Sport) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(modifier = modifier) {
+        SportsList(
+            sports = sportsUiState.sportsList,
+            onClick = onSportSelected,
+            modifier = Modifier
+                .weight(1.5f)
+                .padding(
+                    top = dimensionResource(id = R.dimen.padding_medium),
+                    start = dimensionResource(id = R.dimen.padding_medium),
+                    bottom = dimensionResource(id = R.dimen.padding_medium),
+                )
+        )
+        val activity = LocalContext.current as Activity
+        Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
+        SportsDetail(
+            selectedSport = sportsUiState.currentSport,
+            onBackPressed = {
+                activity.finish()
+                            },
+            contentPadding = PaddingValues(),
+            modifier = Modifier
+                .weight(2.5f)
+        )
     }
 }
 
@@ -339,6 +370,19 @@ private fun SportsDetail(
                 )
             )
         }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 1300)
+@Composable
+fun SportsListAndDetailsPreview() {
+    SportsTheme {
+        val viewModel: SportsViewModel = viewModel()
+        val uiState by viewModel.uiState.collectAsState()
+        SportsListAndDetails(
+            sportsUiState = uiState,
+            onSportSelected = { }
+        )
     }
 }
 
